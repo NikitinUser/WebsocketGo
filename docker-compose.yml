@@ -1,0 +1,77 @@
+version: '3.5'
+services:
+  service-go:
+    build:
+      context: .
+      dockerfile: ./docker/service-go/Dockerfile
+      args:
+        - UID=${UID}
+    restart: always
+    networks:
+      - general-network
+      - local
+  service-db:
+    image: postgres:11.3
+    restart: always
+    ports:
+      - ${POSTGRES_PORT}:5432
+    environment:
+      TZ: "Europe/Moscow"
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE}
+    volumes:
+      - postgres-sock:/var/lib/postgresql
+    networks:
+      - general-network
+    healthcheck:
+      test: pg_isready -q -d ${DB_DATABASE} -U ${DB_USERNAME}
+      timeout: 5s
+  rabbit:
+    restart: always
+    image: rabbitmq:3.8.2-management
+    ports:
+      - "15672:15672"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+    healthcheck:
+      test: rabbitmq-diagnostics -q check_port_connectivity && rabbitmq-diagnostics -q node_health_check
+      timeout: 10s
+    networks:
+      - general-network
+  cron:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: ./docker/cron/Dockerfile
+      target: base
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./docker/cron/config.json:/opt/crontab/config.json:rw
+    networks:
+      - general-network
+  redis:
+    restart: always
+    image: redis:3-alpine
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: redis-cli PING
+      timeout: 3s
+    networks:
+      - general-network
+volumes:
+  postgres-sock:
+  rabbitmq-data:
+  redis-data:
+networks:
+  general-network:
+    name: general-network
+    attachable: true
+  local:
+    external: true
+
