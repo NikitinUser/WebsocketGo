@@ -1,32 +1,5 @@
 version: '3.5'
 services:
-  service-go:
-    build:
-      context: .
-      dockerfile: ./docker/service-go/Dockerfile
-      args:
-        - UID=${UID}
-    restart: always
-    networks:
-      - general-network
-      - local
-  service-db:
-    image: postgres:11.3
-    restart: always
-    ports:
-      - ${POSTGRES_PORT}:5432
-    environment:
-      TZ: "Europe/Moscow"
-      POSTGRES_USER: ${DB_USERNAME}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_DATABASE}
-    volumes:
-      - postgres-sock:/var/lib/postgresql
-    networks:
-      - general-network
-    healthcheck:
-      test: pg_isready -q -d ${DB_DATABASE} -U ${DB_USERNAME}
-      timeout: 5s
   rabbit:
     restart: always
     image: rabbitmq:3.8.2-management
@@ -42,32 +15,33 @@ services:
       timeout: 10s
     networks:
       - general-network
-  cron:
-    platform: linux/amd64
+  service-go:
     build:
       context: .
-      dockerfile: ./docker/cron/Dockerfile
-      target: base
+      dockerfile: ./docker/service-go/Dockerfile
+      args:
+        - UID=${UID}
+    depends_on:
+      - rabbit
+    ports:
+      - 6060:6060
     restart: always
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./docker/cron/config.json:/opt/crontab/config.json:rw
     networks:
       - general-network
-  redis:
+  local_user_service:
+    build:
+      context: .
+      dockerfile: ./docker/local_user_service/Dockerfile
+      args:
+        - UID=${UID}
+    ports:
+      - 6070:6070
     restart: always
-    image: redis:3-alpine
-    volumes:
-      - redis-data:/data
-    healthcheck:
-      test: redis-cli PING
-      timeout: 3s
     networks:
       - general-network
 volumes:
   postgres-sock:
   rabbitmq-data:
-  redis-data:
 networks:
   general-network:
     name: general-network
