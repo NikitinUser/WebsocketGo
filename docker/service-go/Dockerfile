@@ -8,8 +8,8 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o /app/app/cmd/web/main /app/app/cmd/web/main.go
+RUN go build -o ./main ./app/cmd/web/main.go
 
-EXPOSE 8080
+EXPOSE 6060
 
-CMD ["/app/app/cmd/web/main"]
+CMD ["./wait-for-it.sh", "rabbit:15672", "--"]
