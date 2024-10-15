@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	"main/pkg/connect_storage"
+	"github.com/NikitinUser/WebsocketGo/pkg/connect_storage"
 
 	"github.com/wagslane/go-rabbitmq"
 )

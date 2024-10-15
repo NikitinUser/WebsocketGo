@@ -11,8 +11,8 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/joho/godotenv"
 
-	"main/pkg/connect_storage"
-	"main/pkg/user_service_sdk"
+	"github.com/NikitinUser/WebsocketGo/pkg/connect_storage"
+	"github.com/NikitinUser/WebsocketGo/pkg/user_service_sdk"
 )
 
 var upgrader = websocket.Upgrader{
