@@ -38,5 +38,6 @@ env/*
 tests/Generation
 .docker-sync
 .DS_Store
+._.DS_Store
 openapi.yaml
 main/*

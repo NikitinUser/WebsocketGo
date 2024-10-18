@@ -48,4 +48,11 @@
 }
 
 
+{
+    "mode": "touser",
+    "userid": "1",
+    "message": "test 1"
+}
+
+
 
