@@ -12,6 +12,7 @@ import (
 	"github.com/joho/godotenv"
 
 	"github.com/NikitinUser/WebsocketGo/pkg/connect_storage"
+	"github.com/NikitinUser/WebsocketGo/pkg/consumer"
 	"github.com/NikitinUser/WebsocketGo/pkg/user_service_sdk"
 )
 
@@ -28,7 +29,7 @@ func main() {
 		log.Fatalf("env err load: %v", err)
 	}
 
-	go Consume()
+	go consumer.Consume()
 
 	http.HandleFunc("/ws", wsHandler)
 	log.Printf("Run in :%s", os.Getenv("WEBSOCKET_PORT"))
